@@ -1,0 +1,43 @@
+=== TASK 7: STRATIFIED TRAIN/TEST SPLIT ===
+Overall Target Class Balance: Not Survived (0) = 549 (61.62%), Survived (1) = 342 (38.38%)
+Train shape: (712, 7) (Survived = 38.34%) | Test shape: (179, 7) (Survived = 38.55%)
+
+=== TASKS 8, 9 & 10: THREE CLASSIFIERS & EVALUATION SUITE ===
+              Model  Accuracy  Precision  Recall     F1  ROC_AUC     Confusion_Matrix
+Logistic Regression    0.8045     0.7931  0.6667 0.7244   0.8437 [[98, 12], [23, 46]]
+      Decision Tree    0.7933     0.8636  0.5507 0.6726   0.8292 [[104, 6], [31, 38]]
+      Random Forest    0.8156     0.8000  0.6957 0.7442   0.8287 [[98, 12], [21, 48]]
+
+=== TASK 11: IMBALANCE HANDLING COMPARISON (LOGISTIC REGRESSION) ===
+                      Strategy  Accuracy  Precision  Recall     F1
+    (a) Baseline (No Handling)    0.8045     0.7931  0.6667 0.7244
+   (b) class_weight='balanced'    0.8045     0.7297  0.7826 0.7552
+(c) SMOTE (Training Fold Only)    0.8101     0.7397  0.7826 0.7606
+
+=== TASK 12: RANDOM FOREST GRIDSEARCHCV & OUT-OF-BAG (OOB) SCORE ===
+Best Parameters: {'classifier__max_depth': 8, 'classifier__max_features': 'sqrt', 'classifier__n_estimators': 100}
+Best CV F1 Score: 0.7417
+Corresponding OOB Score (oob_score_): 0.8174
+Tuned RF Test Metrics -> Accuracy: 0.8045, Precision: 0.8036, Recall: 0.6522, F1: 0.7200, ROC_AUC: 0.8398
+
+=== TASK 13: MULTIVARIATE LINEAR REGRESSION (PREDICTING FARE) ===
+Regression Test Metrics (Target = fare, n=179, p=10):
+  MAE         : 20.8977
+  RMSE        : 30.5328
+  R^2         : 0.3975
+  Adjusted R^2: 0.3617
+  Heteroscedasticity Conclusion: The residual plot exhibits clear HETEROSCEDASTICITY (a non-random, funnel-shaped spread of residuals that widens substantially as predicted fare increases, driven by extreme right-skewness and luxury first-class suite outliers up to 512.33).
+
+=== TASK 14: FINAL MODEL COMPARISON TABLE (SEPARATE CLASSIFICATION VS REGRESSION SCALES) ===
+                         Model                 Task_Type Clf_Accuracy Clf_Precision Clf_Recall Clf_F1 Clf_AUC Reg_MAE Reg_RMSE Reg_R2 Reg_Adj_R2
+           Logistic Regression Classification (survived)       0.8045        0.7931     0.6667 0.7244  0.8437     N/A      N/A    N/A        N/A
+                 Decision Tree Classification (survived)       0.7933        0.8636     0.5507 0.6726  0.8292     N/A      N/A    N/A        N/A
+                 Random Forest Classification (survived)       0.8156        0.8000     0.6957 0.7442  0.8287     N/A      N/A    N/A        N/A
+     Tuned Random Forest (OOB) Classification (survived)       0.8045        0.8036     0.6522 0.7200  0.8398     N/A      N/A    N/A        N/A
+Multivariate Linear Regression         Regression (fare)          N/A           N/A        N/A    N/A     N/A 20.8977  30.5328 0.3975     0.3617
+
+=== TASK 15: PIPELINE SERIALIZATION & RAW-DATA RELOAD VERIFICATION ===
+Saved full end-to-end Pipeline (ColumnTransformer + Tuned RandomForest) to: D:\AIML Course\Capstone Project\analytics\best_titanic_pipeline.joblib
+Reloaded pipeline predictions on raw unpreprocessed data (with NaNs):
+  Sample 1: predicted survived=1 (probability=0.9990)
+  Sample 2: predicted survived=0 (probability=0.0842)

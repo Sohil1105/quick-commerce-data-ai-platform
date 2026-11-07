@@ -1,0 +1,99 @@
+=== TASK 1: DATASET PROFILING ===
+Shape: (891, 15)
+
+--- df.info() ---
+<class 'pandas.DataFrame'>
+RangeIndex: 891 entries, 0 to 890
+Data columns (total 15 columns):
+ #   Column       Non-Null Count  Dtype  
+---  ------       --------------  -----  
+ 0   survived     891 non-null    int64  
+ 1   pclass       891 non-null    int64  
+ 2   sex          891 non-null    str    
+ 3   age          714 non-null    float64
+ 4   sibsp        891 non-null    int64  
+ 5   parch        891 non-null    int64  
+ 6   fare         891 non-null    float64
+ 7   embarked     889 non-null    str    
+ 8   class        891 non-null    str    
+ 9   who          891 non-null    str    
+ 10  adult_male   891 non-null    bool   
+ 11  deck         203 non-null    str    
+ 12  embark_town  889 non-null    str    
+ 13  alive        891 non-null    str    
+ 14  alone        891 non-null    bool   
+dtypes: bool(2), float64(2), int64(4), str(7)
+memory usage: 92.4 KB
+
+--- df.describe(include='all') ---
+          survived      pclass   sex         age       sibsp       parch        fare embarked  class  who adult_male deck  embark_town alive alone
+count   891.000000  891.000000   891  714.000000  891.000000  891.000000  891.000000      889    891  891        891  203          889   891   891
+unique         NaN         NaN     2         NaN         NaN         NaN         NaN        3      3    3          2    7            3     2     2
+top            NaN         NaN  male         NaN         NaN         NaN         NaN        S  Third  man       True    C  Southampton    no  True
+freq           NaN         NaN   577         NaN         NaN         NaN         NaN      644    491  537        537   59          644   549   537
+mean      0.383838    2.308642   NaN   29.699118    0.523008    0.381594   32.204208      NaN    NaN  NaN        NaN  NaN          NaN   NaN   NaN
+std       0.486592    0.836071   NaN   14.526497    1.102743    0.806057   49.693429      NaN    NaN  NaN        NaN  NaN          NaN   NaN   NaN
+min       0.000000    1.000000   NaN    0.420000    0.000000    0.000000    0.000000      NaN    NaN  NaN        NaN  NaN          NaN   NaN   NaN
+25%       0.000000    2.000000   NaN   20.125000    0.000000    0.000000    7.910400      NaN    NaN  NaN        NaN  NaN          NaN   NaN   NaN
+50%       0.000000    3.000000   NaN   28.000000    0.000000    0.000000   14.454200      NaN    NaN  NaN        NaN  NaN          NaN   NaN   NaN
+75%       1.000000    3.000000   NaN   38.000000    1.000000    0.000000   31.000000      NaN    NaN  NaN        NaN  NaN          NaN   NaN   NaN
+max       1.000000    3.000000   NaN   80.000000    8.000000    6.000000  512.329200      NaN    NaN  NaN        NaN  NaN          NaN   NaN   NaN
+
+--- Missing Value Percentages (Columns with Missing Data) ---
+  age: 19.87% (177 / 891 rows)
+  embarked: 0.22% (2 / 891 rows)
+  deck: 77.22% (688 / 891 rows)
+  embark_town: 0.22% (2 / 891 rows)
+
+=== TASK 2: MISSING-VALUE HANDLING (THRESHOLD RULE) ===
+  embarked (0.22% < 5%): Dropping rows with missing 'embarked'.
+  embark_town (0.22% < 5%): Dropping rows with missing 'embark_town'.
+  Rows after dropping <5% missing columns (['embarked', 'embark_town']): 891 -> 889
+  age (19.87% in [5%, 30%]): Imputed with median = 28.00.
+  deck (77.22% > 30%): Dropped column 'deck' because 77.22% of records are missing, making statistical imputation unreliable and mostly correlated with ticket class (pclass).
+  Cleaned DataFrame shape: (889, 14) (remaining nulls: 0)
+
+=== TASK 3: UNIVARIATE ANALYSIS & IQR OUTLIERS ===
+  age: Q1=22.00, Q3=35.00, IQR=13.00, Bounds=[2.50, 54.50] -> Outliers (cleaned df) = 65 (raw non-null df = 11)
+  fare: Q1=7.90, Q3=31.00, IQR=23.10, Bounds=[-26.76, 65.66] -> Outliers (cleaned df) = 114 (raw non-null df = 116)
+  Fare Central Tendency (cleaned): Mean = 32.10, Median = 14.45, Mode = 8.05
+  Fare Skewness Conclusion: Strongly RIGHT-SKEWED (positively skewed) because Mean (32.10) > Median (14.45) > Mode (8.05).
+
+=== TASK 4: BIVARIATE SURVIVAL RATES (BOOLEAN MASKING) & 6x6 CORRELATION MATRIX ===
+  (a) Survival Rate by Sex:
+      sex == 'female': 74.04% (n=312)
+      sex == 'male': 18.89% (n=577)
+  (b) Survival Rate by Pclass:
+      pclass == 1: 62.62% (n=214)
+      pclass == 2: 47.28% (n=184)
+      pclass == 3: 24.24% (n=491)
+  (c) Survival Rate by Sex & Pclass (using & boolean masking):
+      (sex == 'female') & (pclass == 1): 96.74% (n=92)
+      (sex == 'female') & (pclass == 2): 92.11% (n=76)
+      (sex == 'female') & (pclass == 3): 50.00% (n=144)
+      (sex == 'male') & (pclass == 1): 36.89% (n=122)
+      (sex == 'male') & (pclass == 2): 15.74% (n=108)
+      (sex == 'male') & (pclass == 3): 13.54% (n=347)
+      (sex == 'female') | (pclass == 1) combined survival rate: 63.59% (n=434)
+
+--- 6x6 Correlation Matrix (adult_male and alone excluded) ---
+          survived  pclass     age   sibsp   parch    fare
+survived    1.0000 -0.3355 -0.0698 -0.0340  0.0832  0.2553
+pclass     -0.3355  1.0000 -0.3365  0.0817  0.0168 -0.5482
+age        -0.0698 -0.3365  1.0000 -0.2325 -0.1715  0.0937
+sibsp      -0.0340  0.0817 -0.2325  1.0000  0.4145  0.1609
+parch       0.0832  0.0168 -0.1715  0.4145  1.0000  0.2175
+fare        0.2553 -0.5482  0.0937  0.1609  0.2175  1.0000
+
+--- Top Off-Diagonal Correlation Pairs by |r| ---
+  pclass <-> fare: r = -0.5482 (|r| = 0.5482)
+  sibsp <-> parch: r = 0.4145 (|r| = 0.4145)
+  pclass <-> age: r = -0.3365 (|r| = 0.3365)
+  survived <-> pclass: r = -0.3355 (|r| = 0.3355)
+
+=== TASK 5: MULTIVARIATE DATA STORY (4 CHARTS GENERATED) ===
+  Saved 4 multivariate story charts to analytics/charts/.
+
+=== TASK 6: EXPLORATORY Z-SCORE STANDARDIZATION CHECK (AGE & FARE) ===
+  age -> Before: mean=29.3152, std=12.9776 | After (age_z): mean=0.000000, std=1.000000
+  fare -> Before: mean=32.0967, std=49.6695 | After (fare_z): mean=0.000000, std=1.000000
